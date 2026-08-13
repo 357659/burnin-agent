@@ -3,6 +3,8 @@ import time
 
 import psutil
 
+from agent.tests.result import evaluate_cpu_result
+
 
 def cpu_worker():
     """Mantém um núcleo da CPU ocupado."""
@@ -65,7 +67,7 @@ def run_cpu_test(duration=60):
             process.terminate()
             process.join()
 
-    # Calcula métricas
+    # Calcula as métricas
     cpu_average = sum(cpu_samples) / len(cpu_samples)
     cpu_max = max(cpu_samples)
 
@@ -80,22 +82,38 @@ def run_cpu_test(duration=60):
         "ram_final": round(ram_final, 2),
     }
 
+    # Avalia o resultado
+    evaluation = evaluate_cpu_result(
+        result["cpu_average"],
+        result["cpu_max"],
+    )
+
     print()
     print("=" * 50)
     print("              RESULTADO")
     print("=" * 50)
     print()
+
     print(f"Duração       : {result['duration_seconds']} s")
     print(f"CPU média     : {result['cpu_average']} %")
     print(f"CPU máxima    : {result['cpu_max']} %")
     print(f"RAM inicial   : {result['ram_initial']} %")
     print(f"RAM final     : {result['ram_final']} %")
     print()
-    print("Resultado     : PASS")
+
+    print(f"Resultado     : {evaluation['status']}")
+
+    if evaluation["errors"]:
+        print()
+        print("Motivos:")
+
+        for error in evaluation["errors"]:
+            print(f"- {error}")
+
     print("=" * 50)
 
     return result
 
 
 if __name__ == "__main__":
-    run_cpu_test()
+    run_cpu_test(10)  # Executa o teste por 10 segundos para demonstração
