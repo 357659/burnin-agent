@@ -1,5 +1,6 @@
-import time
 import multiprocessing
+import time
+
 import psutil
 
 
@@ -11,18 +12,16 @@ def cpu_worker():
 
 def run_cpu_test(duration=60):
     """
-    Executa um teste simples de carga da CPU.
+    Executa um teste de carga da CPU.
 
-    Args:
-        duration: duração do teste em segundos.
-
-    Returns:
-        True quando o teste termina normalmente.
+    Retorna um dicionário com as métricas coletadas.
     """
 
     workers = []
-
     cpu_count = multiprocessing.cpu_count()
+
+    cpu_samples = []
+    ram_samples = []
 
     print("=" * 50)
     print("          BURN-IN CPU TEST")
@@ -34,6 +33,7 @@ def run_cpu_test(duration=60):
     print("Iniciando teste...")
     print()
 
+    # Inicia um processo por núcleo lógico
     for _ in range(cpu_count):
         process = multiprocessing.Process(target=cpu_worker)
         process.start()
@@ -44,12 +44,17 @@ def run_cpu_test(duration=60):
     try:
         while time.time() - start_time < duration:
             cpu_usage = psutil.cpu_percent(interval=1)
+            memory = psutil.virtual_memory()
+
+            cpu_samples.append(cpu_usage)
+            ram_samples.append(memory.percent)
 
             elapsed = int(time.time() - start_time)
 
             print(
-                f"Tempo: {elapsed:03d}s | "
-                f"CPU: {cpu_usage:5.1f}%"
+                f"[{elapsed:03d}s] "
+                f"CPU: {cpu_usage:5.1f}% | "
+                f"RAM: {memory.percent:5.1f}%"
             )
 
     finally:
@@ -60,8 +65,36 @@ def run_cpu_test(duration=60):
             process.terminate()
             process.join()
 
-    print("Resultado: PASS")
-    return True
+    # Calcula métricas
+    cpu_average = sum(cpu_samples) / len(cpu_samples)
+    cpu_max = max(cpu_samples)
+
+    ram_initial = ram_samples[0]
+    ram_final = ram_samples[-1]
+
+    result = {
+        "duration_seconds": duration,
+        "cpu_average": round(cpu_average, 2),
+        "cpu_max": round(cpu_max, 2),
+        "ram_initial": round(ram_initial, 2),
+        "ram_final": round(ram_final, 2),
+    }
+
+    print()
+    print("=" * 50)
+    print("              RESULTADO")
+    print("=" * 50)
+    print()
+    print(f"Duração       : {result['duration_seconds']} s")
+    print(f"CPU média     : {result['cpu_average']} %")
+    print(f"CPU máxima    : {result['cpu_max']} %")
+    print(f"RAM inicial   : {result['ram_initial']} %")
+    print(f"RAM final     : {result['ram_final']} %")
+    print()
+    print("Resultado     : PASS")
+    print("=" * 50)
+
+    return result
 
 
 if __name__ == "__main__":
