@@ -84,9 +84,11 @@ def run_cpu_test(duration=CPU_TEST_DURATION):
 
     # Avalia o resultado
     evaluation = evaluate_cpu_result(
-        result["cpu_average"],
-        result["cpu_max"],
-    )
+    cpu_average,
+    cpu_max,
+    ram_initial,
+    ram_final,
+)
 
     print()
     print("=" * 50)
@@ -101,13 +103,13 @@ def run_cpu_test(duration=CPU_TEST_DURATION):
     print(f"RAM final     : {result['ram_final']} %")
     print()
 
-    print(f"Resultado     : {evaluation['status']}")
+    print(f"Resultado     : {evaluation.status}")
 
-    if evaluation["errors"]:
+    if evaluation.errors:
         print()
-        print("Motivos:")
+        print("\nMotivos:")
 
-        for error in evaluation["errors"]:
+        for error in evaluation.errors:
             print(f"- {error}")
 
     print("=" * 50)
