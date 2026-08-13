@@ -4,7 +4,7 @@ import time
 import psutil
 
 from agent.tests.result import evaluate_cpu_result
-
+from agent.config.settings import CPU_TEST_DURATION
 
 def cpu_worker():
     """Mantém um núcleo da CPU ocupado."""
@@ -12,7 +12,7 @@ def cpu_worker():
         pass
 
 
-def run_cpu_test(duration=60):
+def run_cpu_test(duration=CPU_TEST_DURATION):
     """
     Executa um teste de carga da CPU.
 
@@ -116,4 +116,4 @@ def run_cpu_test(duration=60):
 
 
 if __name__ == "__main__":
-    run_cpu_test(10)  # Executa o teste por 10 segundos para demonstração
+    run_cpu_test()  # Executa o teste usando a duração configurada em settings.py
