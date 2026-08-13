@@ -1,4 +1,13 @@
 from agent.config.settings import CPU_MIN_AVERAGE, CPU_MIN_MAX
+from agent.tests.test_result import TestResult
+
+
+def build_test_result(test_name, status, errors):
+    return TestResult(
+        test=test_name,
+        status=status,
+        errors=errors,
+    )
 
 
 def evaluate_cpu_result(cpu_average, cpu_max):
@@ -19,12 +28,6 @@ def evaluate_cpu_result(cpu_average, cpu_max):
         )
 
     if errors:
-        return {
-            "status": "FAIL",
-            "errors": errors,
-        }
+        return build_test_result("CPU", "FAIL", errors)
 
-    return {
-        "status": "PASS",
-        "errors": [],
-    }
+    return build_test_result("CPU", "PASS", [])
