@@ -3,8 +3,17 @@ import psutil
 
 from agent.config.settings import RAM_MAX_USAGE, RAM_TEST_DURATION
 from agent.tests.result import build_test_result
+from agent.config.settings import (
+    RAM_MAX_USAGE,
+    RAM_TEST_DURATION,
+    RAM_TEST_USAGE,
+)
+def calculate_memory_to_allocate():
+    memory = psutil.virtual_memory()
 
+    target_percent = RAM_TEST_USAGE / 100
 
+    return int(memory.total * target_percent)
 def run_ram_test(duration=RAM_TEST_DURATION):
     """
     Monitora o uso da memória RAM durante o teste.
