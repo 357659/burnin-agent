@@ -16,7 +16,7 @@ def run_cpu_test(duration=CPU_TEST_DURATION):
     """
     Executa um teste de carga da CPU.
 
-    Retorna um dicionário com as métricas coletadas.
+    Retorna um TestResult com o resultado e as métricas do teste.
     """
 
     workers = []
@@ -114,7 +114,7 @@ def run_cpu_test(duration=CPU_TEST_DURATION):
 
     print("=" * 50)
 
-    return result
+    return evaluation
 
 
 if __name__ == "__main__":
