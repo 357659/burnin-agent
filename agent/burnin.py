@@ -1,6 +1,6 @@
 from agent.tests.cpu_test import run_cpu_test
 from agent.tests.ram_test import run_ram_test
-
+from agent.tests.burnin_result import BurnInResult
 
 def run_burnin():
     print("=" * 50)
@@ -20,16 +20,15 @@ def run_burnin():
         ram_result,
     ]
 
-    failed_tests = [
-        result
+    status = "FAIL" if any(
+        result.status == "FAIL"
         for result in results
-        if result.status == "FAIL"
-    ]
+    ) else "PASS"
 
-    if failed_tests:
-        status = "FAIL"
-    else:
-        status = "PASS"
+    burnin_result = BurnInResult(
+        status=status,
+        tests=results,
+    )
 
     print()
     print("=" * 50)
@@ -39,10 +38,10 @@ def run_burnin():
     print(f"CPU : {cpu_result.status}")
     print(f"RAM : {ram_result.status}")
     print()
-    print(f"RESULTADO GERAL : {status}")
+    print(f"RESULTADO GERAL : {burnin_result.status}")
     print("=" * 50)
 
-    return status
+    return burnin_result
 
 
 if __name__ == "__main__":
