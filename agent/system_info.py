@@ -2,7 +2,6 @@ import platform
 import socket
 
 import psutil
-import win32com.client
 
 import hashlib
 
@@ -16,15 +15,25 @@ def build_machine_id(mac_address):
     ).hexdigest()[:16]
 
 def get_cpu_name():
-    if platform.system() == "Windows":
-        wmi = win32com.client.GetObject("winmgmts:")
-        processors = wmi.InstancesOf("Win32_Processor")
+    import winreg
 
-        for processor in processors:
-            return processor.Name.strip()
+    try:
+        key = winreg.OpenKey(
+            winreg.HKEY_LOCAL_MACHINE,
+            r"HARDWARE\DESCRIPTION\System\CentralProcessor\0",
+        )
 
-    return platform.processor()
+        cpu_name, _ = winreg.QueryValueEx(
+            key,
+            "ProcessorNameString",
+        )
 
+        winreg.CloseKey(key)
+
+        return cpu_name.strip()
+
+    except Exception:
+        return "CPU desconhecida"
 
 def get_mac_address():
     interfaces = psutil.net_if_addrs()
