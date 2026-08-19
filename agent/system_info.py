@@ -5,7 +5,7 @@ import psutil
 
 import hashlib
 
-from agent.system_result import SystemInfo
+from agent.system_result import SystemInfo,DiskInfo
 
 def build_machine_id(mac_address):
     normalized = mac_address.replace(":", "").replace("-", "").upper()
@@ -55,6 +55,33 @@ def get_mac_address():
 
     return None
 
+def get_disk_info():
+    disks = []
+
+    for partition in psutil.disk_partitions():
+        try:
+            usage = psutil.disk_usage(partition.mountpoint)
+
+            disks.append(
+                DiskInfo(
+                    device=partition.device,
+                    mountpoint=partition.mountpoint,
+                    filesystem=partition.fstype,
+                    total_gb=round(
+                        usage.total / (1024 ** 3),
+                        2,
+                    ),
+                    free_gb=round(
+                        usage.free / (1024 ** 3),
+                        2,
+                    ),
+                )
+            )
+
+        except (PermissionError, OSError):
+            continue
+
+    return disks
 
 def get_system_info():
     memory = psutil.virtual_memory()
@@ -72,6 +99,7 @@ def get_system_info():
         cpu=get_cpu_name(),
         cpu_count=psutil.cpu_count(logical=True),
         ram_total_gb=round(memory.total / (1024 ** 3), 2),
+        disks=get_disk_info(),
     )
 
 
@@ -90,5 +118,16 @@ if __name__ == "__main__":
     print(f"{'cpu':20}: {info.cpu}")
     print(f"{'cpu_count':20}: {info.cpu_count}")
     print(f"{'ram_total_gb':20}: {info.ram_total_gb}")
+
+    print()
+    print("ARMAZENAMENTO:")
+
+    for disk in info.disks:
+        print(
+            f"{disk.device:10} "
+            f"{disk.total_gb:.2f} GB total | "
+            f"{disk.free_gb:.2f} GB livre | "
+            f"{disk.filesystem}"
+        )
 
     print("=" * 50)

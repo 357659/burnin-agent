@@ -1,4 +1,14 @@
 from dataclasses import dataclass
+from typing import List
+
+
+@dataclass
+class DiskInfo:
+    device: str
+    mountpoint: str
+    filesystem: str
+    total_gb: float
+    free_gb: float
 
 
 @dataclass
@@ -11,3 +21,4 @@ class SystemInfo:
     cpu: str
     cpu_count: int
     ram_total_gb: float
+    disks: List[DiskInfo]

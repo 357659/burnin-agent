@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from agent.system_result import SystemInfo
+from agent.system_result import SystemInfo,DiskInfo
 from agent.tests.burnin_result import BurnInResult
 from agent.tests.test_result import TestResult
 
@@ -31,6 +31,16 @@ class JsonRepository:
                 "cpu": result.system.cpu,
                 "cpu_count": result.system.cpu_count,
                 "ram_total_gb": result.system.ram_total_gb,
+                "disks": [
+    {
+        "device": disk.device,
+        "mountpoint": disk.mountpoint,
+        "filesystem": disk.filesystem,
+        "total_gb": disk.total_gb,
+        "free_gb": disk.free_gb,
+    }
+    for disk in result.system.disks
+],
             },
             "tests": [
                 {
@@ -63,6 +73,16 @@ class JsonRepository:
             cpu=data["machine"]["cpu"],
             cpu_count=data["machine"]["cpu_count"],
             ram_total_gb=data["machine"]["ram_total_gb"],
+            disks=[
+    DiskInfo(
+        device=disk["device"],
+        mountpoint=disk["mountpoint"],
+        filesystem=disk["filesystem"],
+        total_gb=disk["total_gb"],
+        free_gb=disk["free_gb"],
+    )
+    for disk in data["machine"].get("disks", [])
+],
         )
 
         tests = [
